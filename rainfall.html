@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainfall Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-400">
+        <!-- Navigation -->
+        <nav class="bg-green-600 text-white py-4">
+            <div class="container mx-auto px-6 flex justify-center space-x-6">
+                <a href="rainfall.html" class="font-semibold text-lg border-b-2 border-white">Rainfall Prediction</a>
+                <a href="crop.html" class="font-semibold text-lg hover:border-b-2 hover:border-white">Crop Recommendation</a>
+                <a href="yield.html" class="font-semibold text-lg hover:border-b-2 hover:border-white">Yield Prediction</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-6">
+            <section class="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto">
+                <h2 class="text-xl font-semibold mb-4 text-center">Predict Annual Rainfall</h2>
+                <form id="rainfall-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Crop</label>
+                        <input type="text" name="crop" class="mt-1 block w-full p-2 border rounded-md" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Season</label>
+                        <select name="season" class="mt-1 block w-full p-2 border rounded-md" required>
+                            <option value="Whole Year">Whole Year</option>
+                            <option value="Kharif">Kharif</option>
+                            <option value="Rabi">Rabi</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Autumn">Autumn</option>
+                            <option value="Winter">Winter</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">State</label>
+                        <input type="text" name="state" class="mt-1 block w-full p-2 border rounded-md" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Area (hectares)</label>
+                        <input type="number" name="area" step="0.01" class="mt-1 block w-full p-2 border rounded-md" required />
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Predict Rainfall</button>
+                </form>
+                <div id="rainfall-result" class="mt-4 text-center">
+                    <!-- Result or error will be displayed here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-green-600 text-white py-4 text-center">
+            <p>© 2025 Crop Yield Prediction System. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('rainfall-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultDiv = document.getElementById('rainfall-result');
+            resultDiv.innerHTML = '<p class="text-gray-700">Loading...</p>';
+
+            const formData = new FormData(event.target);
+            formData.append('form_type', 'rainfall');
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.result) {
+                    resultDiv.innerHTML = `<p class="text-green-700 font-semibold">${data.result}</p>`;
+                } else if (data.error) {
+                    resultDiv.innerHTML = `<p class="text-red-700 font-semibold">${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = '<p class="text-red-700 font-semibold">Unexpected response from server</p>';
+                }
+            } catch (err) {
+                resultDiv.innerHTML = '<p class="text-red-700 font-semibold">Failed to connect to the server. Please ensure the Flask server is running.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
